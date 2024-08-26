@@ -4,10 +4,21 @@ from langchain.agents import Tool
 from langchain.agents import load_tools
 from crewai import Agent, Task, Process, Crew
 from langchain.utilities import GoogleSerperAPIWrapper
+from langchain_groq import ChatGroq
 
 # Set up environment variables
 os.environ["SERPER_API_KEY"] = "3464cc676dfe52ef67ba5de1e719f6704750e8fdbfe16653c94023b4f92eb0d9"
-os.environ["OPENAI_API_KEY"] = "your_openai_api_key_here"
+os.environ["OPENAI_API_KEY"] =" asst_T5mYw2PsjRc3Ij1g3UBnlYGm"
+os.environ["GROQ_API_KEY"] = "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"
+
+llm = ChatGroq(
+    model="llama3-groq-8b-8192-tool-use-preview",
+    temperature=0.7,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
 
 # Initialize search tool
 search = GoogleSerperAPIWrapper()
@@ -30,6 +41,7 @@ explorer = Agent(
     verbose=True,
     allow_delegation=False,
     tools=[search_tool],
+    llm= llm,
 )
 
 writer = Agent(
@@ -40,6 +52,7 @@ writer = Agent(
     a fun way using layman terms. ONLY use scraped data from the internet for the blog.""",
     verbose=True,
     allow_delegation=True,
+    llm= llm,
 )
 
 critic = Agent(
@@ -50,6 +63,7 @@ critic = Agent(
     while using layman terms.""",
     verbose=True,
     allow_delegation=True,
+    llm=llm,
 )
 
 # Define tasks
@@ -59,7 +73,8 @@ task_report = Task(
     isn't text. The report should include 5-10 exciting new AI projects and tools with each bullet point containing 3 sentences about 
     a specific AI company, product, model, or anything you found on the internet.""",
     agent=explorer,
-    expected_output="A detailed report with 5-10 bullet points, each containing 3 sentences about a specific AI project or tool."
+    expected_output="A detailed report with 5-10 bullet points, each containing 3 sentences about a specific AI project or tool.",
+    llm=llm,
 )
 
 task_blog = Task(
